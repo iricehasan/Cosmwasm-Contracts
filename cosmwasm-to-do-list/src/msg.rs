@@ -11,6 +11,7 @@ pub enum ExecuteMsg {
     NewEntry {description: String, priority: Option<Priority>},
     UpdateEntry { id: u64, description: Option<String>, status: Option<Status>, priority: Option<Priority> },
     DeleteEntry { id: u64 },
+    TransferOwnership { new_owner: String },
 }
 
 #[cw_serde]

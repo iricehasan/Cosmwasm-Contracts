@@ -4,3 +4,4 @@ This contract is written using the tutorial from https://docs.cosmwasm.com/dev-a
 
 - The owner of the To-Do List contract can add new entries, update existing ones or delete them.
 - The contract can be queried to return individual entries as well as a subset of the whole list.
+- The owner can transfer the ownership via TransferOwnership.

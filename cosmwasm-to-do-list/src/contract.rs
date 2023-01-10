@@ -1,4 +1,3 @@
-
 #[cfg(not(feature = "library"))]
 use cosmwasm_std::entry_point;
 use cosmwasm_std::{to_binary, Binary, Deps, DepsMut, Env, MessageInfo, Order, Response, StdResult};
@@ -56,6 +55,7 @@ pub fn execute(
     msg: ExecuteMsg,
 ) -> Result<Response, ContractError> {
     match msg {
+        ExecuteMsg::TransferOwnership { new_owner } => execute_transfer_ownership(deps, info, new_owner),
         ExecuteMsg::NewEntry {description, priority} => execute_create_new_entry(deps, info, description, priority),
         ExecuteMsg::UpdateEntry {id, description, status, priority } => execute_update_entry(deps, info, id, description, status, priority),
         ExecuteMsg::DeleteEntry {id} => execute_delete_entry(deps, info, id)
@@ -136,6 +136,22 @@ pub fn execute_delete_entry(deps: DepsMut, info: MessageInfo, id: u64) -> Result
                       .add_attribute("deleted_entry_id", id.to_string()))
 }
 
+pub fn execute_transfer_ownership(deps: DepsMut, info: MessageInfo, new_owner: String) -> Result<Response, ContractError> {
+    // Before transferring the ownership, the function checks if the message sender is 
+    // the owner of the contract.
+    let owner = CONFIG.load(deps.storage)?.owner;
+    if info.sender != owner {
+        // If not, it returns an error and the ownership transfer fails to be performed.
+        return Err(ContractError::Unauthorized {});
+    }
+    // The function loads the contract configuration from the `CONFIG` and updates the `owner` attribute.
+    let mut config = CONFIG.load(deps.storage)?;
+    config.owner = deps.api.addr_validate(&new_owner)?;
+    // The function saves the updated configuration to the `CONFIG` and returns a `Response` with the relevant attributes.
+    CONFIG.save(deps.storage, &config)?;
+    Ok(Response::new().add_attribute("method", "execute_transfer_ownership")
+                      .add_attribute("new_owner", new_owner))
+}
 
 // QUERY
 
